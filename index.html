@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ja">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="改行で選択肢を入力して、ルーレットを押すだけ。広告のないシンプルな教室用ルーレット。"><title>教室ルーレット</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<header><a class="brand" href="./"><span class="brand-icon" aria-hidden="true">✳</span>教室ルーレット</a><label class="sound"><input type="checkbox" id="sound" checked> 音を鳴らす</label></header>
+<main>
+<section class="stage" aria-label="ルーレット">
+<div class="stage-top"><span class="eyebrow">さあ、だれの番？</span><span class="badge" id="remaining">6 項目</span></div>
+<div class="wheel-wrap"><span class="pointer" aria-hidden="true"></span><button id="wheelButton" aria-label="ルーレットを回す"><canvas id="wheel" width="1000" height="1000"></canvas><span class="hub" id="hub">まわす<span>↻</span></span></button></div>
+<div class="stage-bottom"><p id="status" role="status">ルーレットを押してスタート</p><span class="subtle">どの選択肢も、同じ確率。</span></div>
+</section>
+<aside class="editor">
+<div class="section-heading"><h1>選択肢</h1><span id="count">6 項目</span></div>
+<label for="entries" class="help">1行に1つ。コピー＆ペーストもできます。</label>
+<textarea id="entries" spellcheck="false" placeholder="ここに選択肢を入力&#10;1行につき1つ" aria-describedby="inputNote">1
+2
+3
+4
+5
+6</textarea>
+<div class="input-footer"><span id="inputNote">空の行は無視されます</span><button class="text-button" id="clear">すべて消す</button></div>
+<div class="chips" id="chips" aria-label="個別に削除"></div>
+<div class="options"><label class="check-row"><input type="checkbox" id="removeWinner"><span>当たった項目を自動で除外<small>同じ項目が続けて当たらないようにします</small></span></label></div>
+<button class="reset" id="reset"><span aria-hidden="true">↺</span> リセット</button><p class="reset-note">選択肢と設定を初期状態に戻します（1〜6）</p>
+</aside>
+</main>
+<footer>教室の、ちいさなくじ引き。</footer>
+<dialog id="result"><div class="result-mark" aria-hidden="true">✦</div><p class="eyebrow">選ばれたのは</p><h2 id="winner"></h2><p id="resultNote"></p><button id="continue">つづける</button></dialog>
+<script src="app.js"></script>
+</body></html>
