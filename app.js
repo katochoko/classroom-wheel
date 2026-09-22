@@ -21,19 +21,19 @@ function draw(list=choices){
  }
 }
 function update(){
- const n=choices.length;$('count').textContent=`${n} 項目`;$('remaining').textContent=`${n} 項目`;
- $('wheelButton').disabled=busy||n===0;$('entries').disabled=busy;$('clear').disabled=busy;$('reset').disabled=busy;$('removeWinner').disabled=busy;
- $('hub').firstChild.textContent=busy?'抽選中':n?'まわす':'入力してね';
+ const n=choices.length;$('count').textContent=tr('count',n);$('remaining').textContent=tr('count',n);
+ $('wheelButton').disabled=busy||n===0;$('entries').disabled=busy;$('clear').disabled=busy;$('reset').disabled=busy;$('removeWinner').disabled=busy;$('language').disabled=busy;
+ $('hub').firstChild.textContent=busy?tr('spinning'):n?tr('spin'):tr('add');
  $('chips').replaceChildren();choices.forEach((name,i)=>{
   const chip=document.createElement('span');chip.className='chip';
   const dot=document.createElement('span');dot.className='dot';dot.style.background=color(i);
   const label=document.createElement('span');label.className='name';label.textContent=name;label.title=name;
-  const remove=document.createElement('button');remove.textContent='×';remove.type='button';remove.disabled=busy;remove.setAttribute('aria-label',`${name}を削除`);
-  remove.onclick=()=>{choices.splice(i,1);sync();$('status').textContent='選択肢を変更しました';};
+  const remove=document.createElement('button');remove.textContent='×';remove.type='button';remove.disabled=busy;remove.setAttribute('aria-label',tr('delete',name));
+  remove.onclick=()=>{choices.splice(i,1);sync();$('status').textContent=tr('changed');};
   chip.append(dot,label,remove);$('chips').append(chip);
  });
 }
-function sync(){angle=0;$('entries').value=choices.join('\n');update();draw();if(!choices.length)$('status').textContent='右の入力欄に選択肢を入れてください';}
+function sync(){angle=0;$('entries').value=choices.join('\n');update();draw();if(!choices.length)$('status').textContent=tr('empty');}
 function tone(freq,duration,volume=.035){
  if(!$('sound').checked||!audioContext||audioContext.state!=='running')return;
  const osc=audioContext.createOscillator(),gain=audioContext.createGain(),now=audioContext.currentTime;
@@ -42,7 +42,7 @@ function tone(freq,duration,volume=.035){
 function randomIndex(n){const max=4294967296,limit=max-max%n,a=new Uint32Array(1);do{crypto.getRandomValues(a);}while(a[0]>=limit);return a[0]%n;}
 async function spin(){
  if(busy||!choices.length)return;
- busy=true;update();$('status').textContent='どれに当たるかな…';
+ busy=true;update();$('status').textContent=tr('waiting');
  try{if($('sound').checked){audioContext??=new(window.AudioContext||window.webkitAudioContext)();await audioContext.resume();}}catch{}
  const list=[...choices],n=list.length,winner=randomIndex(n),step=Math.PI*2/n;
  const start=angle,target=(Math.PI*2-(winner+.5)*step)%(Math.PI*2),delta=Math.PI*2*6+(target-start%(Math.PI*2)+Math.PI*2)%(Math.PI*2);
@@ -52,18 +52,21 @@ async function spin(){
   began??=time;const t=Math.min(1,(time-began)/duration);angle=start+delta*(1-Math.pow(1-t,4));draw(list);
   const tick=Math.floor(angle/step);if(tick!==lastTick){tone(720,.035,.025);lastTick=tick;}
   if(t<1){requestAnimationFrame(frame);return;}
-  $('winner').textContent=list[winner];$('status').textContent=`「${list[winner]}」が当たりました`;
+  $('winner').textContent=list[winner];$('status').textContent=tr('won',list[winner]);
   const removed=$('removeWinner').checked;if(removed)choices.splice(winner,1);
-  $('resultNote').textContent=removed?(choices.length?'この項目を除外しました。残り '+choices.length+' 項目です。':'すべての抽選が終わりました。リセットでまた始められます。'): 'もう一度、ルーレットを回せます。';
+  $('resultNote').textContent=removed?(choices.length?tr('removed',choices.length):tr('finished')): tr('again');
   $('entries').value=choices.join('\n');update();$('result').showModal();$('continue').focus();
   [523,659,784].forEach((freq,i)=>setTimeout(()=>tone(freq,.24,.05),i*120));
  }
  requestAnimationFrame(frame);
 }
-$('entries').addEventListener('input',()=>{choices=parse($('entries').value);angle=0;update();draw();$('status').textContent=choices.length?'ルーレットを押してスタート':'選択肢を入力してください';});
+$('entries').addEventListener('input',()=>{choices=parse($('entries').value);angle=0;update();draw();$('status').textContent=choices.length?tr('start'):tr('empty');});
 $('wheelButton').addEventListener('click',spin);
-$('reset').onclick=()=>{choices=[...initialChoices];$('sound').checked=true;$('removeWinner').checked=false;$('winner').textContent='';$('resultNote').textContent='';sync();$('status').textContent=choices.length?'リセットしました。もう一度どうぞ！':'選択肢を入力してください';};
+$('reset').onclick=()=>{choices=[...initialChoices];$('sound').checked=true;$('removeWinner').checked=false;$('winner').textContent='';$('resultNote').textContent='';sync();$('status').textContent=choices.length?tr('resetDone'):tr('empty');};
 $('clear').onclick=()=>{choices=[];sync();$('entries').focus();};
 $('continue').onclick=()=>$('result').close();
-$('result').addEventListener('close',()=>{busy=false;angle=0;update();draw();$('status').textContent=choices.length?'ルーレットを押してスタート':'すべての抽選が終わりました。新しい選択肢を入力してください。';$('wheelButton').focus();});
+$('result').addEventListener('close',()=>{busy=false;angle=0;update();draw();$('status').textContent=choices.length?tr('start'):tr('finished');$('wheelButton').focus();});
 choices=parse($('entries').value);sync();
+
+$('language').addEventListener('change',()=>{setLanguage($('language').value);update();$('status').textContent=busy?tr('waiting'):choices.length?tr('start'):tr('empty');});
+setLanguage('ja');
