@@ -15,7 +15,7 @@ function draw(list=choices){
   ctx.beginPath();ctx.moveTo(500,500);ctx.arc(500,500,499,start,start+step);ctx.closePath();ctx.fillStyle=color(i);ctx.fill();
   if(n>1){ctx.strokeStyle='#ffffff90';ctx.lineWidth=3;ctx.stroke();}
   ctx.save();ctx.translate(500,500);ctx.rotate(start+step/2);ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillStyle='#152b46';
-  const size=Math.max(12,Math.min(34,600/n));ctx.font=`700 ${size}px "Yu Gothic",Meiryo,sans-serif`;
+  const size=Math.max(12,Math.min(34,600/n));ctx.font=`700 ${size}px Arial,"Segoe UI","Yu Gothic",Meiryo,sans-serif`;
   let label=list[i];while(ctx.measureText(label).width>300&&label.length>1)label=label.slice(0,-1);if(label!==list[i])label=label.slice(0,-1)+'…';
   if(n<=120)ctx.fillText(label,448,0);ctx.restore();
  }
